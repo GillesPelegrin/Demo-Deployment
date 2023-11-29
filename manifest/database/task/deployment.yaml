@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresdb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgresdb
+  template:
+    metadata:
+      labels:
+        app: postgresdb
+    spec:
+      containers:
+        - name: postgresdb
+          image: postgres
+          ports:
+            - containerPort: 5432
+          env:
+            - name: PGDATA
+              value: "/data/pgdata"
+            - name: POSTGRES_DB
+              value: "demo"
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-admin-secret
+                  key: POSTGRES_ADMIN_USER
+                  optional: false
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-admin-secret
+                  key: POSTGRES_ADMIN_PASSWORD
+                  optional: false
+          volumeMounts:
+            - mountPath: /var/lib/postgres/data
+              name: db-data
+      volumes:
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: db-persistent-volume-claim
