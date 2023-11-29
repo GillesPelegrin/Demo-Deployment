@@ -17,6 +17,12 @@ spec:
           image: ghcr.io/gillespelegrin/demo-taskservice
           ports:
             - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 3
           env:
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
